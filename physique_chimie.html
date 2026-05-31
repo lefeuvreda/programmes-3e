@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Programme 3e — Physique-Chimie</title>
+  <style>
+    :root{
+      --bg:#f7f4ef;
+      --paper:#fffdf9;
+      --ink:#171512;
+      --muted:#746d63;
+      --line:rgba(23,21,18,.12);
+      --gold:#b4965a;
+      --deep:#27231d;
+      --shadow:0 30px 80px rgba(35,29,19,.12);
+      --radius:30px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(180,150,90,.18), transparent 34rem),
+        linear-gradient(135deg, #fbf9f4 0%, var(--bg) 48%, #eee7dc 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow:hidden;
+    }
+    .deck{height:100vh; width:100vw; position:relative;}
+    .slide{
+      position:absolute; inset:0;
+      opacity:0; pointer-events:none;
+      transform:translateY(16px) scale(.985);
+      transition:opacity .55s ease, transform .55s ease;
+      padding:clamp(24px,4vw,68px);
+      display:grid; place-items:center;
+    }
+    .slide.active{opacity:1; pointer-events:auto; transform:translateY(0) scale(1)}
+    .card{
+      width:min(1180px,100%);
+      min-height:min(760px, calc(100vh - 110px));
+      background:rgba(255,253,249,.78);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(22px);
+      padding:clamp(30px,5vw,72px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card:before{
+      content:""; position:absolute; inset:22px;
+      border:1px solid rgba(180,150,90,.18);
+      border-radius:calc(var(--radius) - 10px);
+      pointer-events:none;
+    }
+    .eyebrow{
+      color:var(--gold); text-transform:uppercase; letter-spacing:.24em;
+      font-size:12px; font-weight:700; margin-bottom:30px;
+    }
+    h1,h2,h3{margin:0; font-family: Georgia, "Times New Roman", serif; font-weight:400; letter-spacing:-.035em;}
+    h1{font-size:clamp(58px,8vw,118px); line-height:.9; max-width:930px;}
+    h2{font-size:clamp(46px,6vw,86px); line-height:.95; max-width:960px;}
+    h3{font-size:clamp(28px,3vw,42px); line-height:1.05;}
+    p{font-size:clamp(18px,2vw,25px); color:var(--muted); line-height:1.55; max-width:820px;}
+    .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:54px; align-items:end; height:100%;}
+    .meta-box{border-left:1px solid var(--line); padding-left:34px; align-self:end;}
+    .meta-line{display:flex; justify-content:space-between; gap:30px; padding:18px 0; border-bottom:1px solid var(--line); color:var(--muted); font-size:15px;}
+    .meta-line strong{color:var(--ink); font-weight:600;}
+    .chapter{display:grid; grid-template-columns:.8fr 1.2fr; gap:58px; align-items:start;}
+    .number{font-family:Georgia,serif; font-size:clamp(92px,12vw,170px); line-height:.75; color:color-mix(in srgb, var(--gold) 24%, transparent)}
+    .list{display:grid; gap:16px; margin-top:34px;}
+    .item{
+      display:flex; align-items:flex-start; gap:18px;
+      padding:18px 0; border-bottom:1px solid var(--line);
+      font-size:clamp(18px,2vw,25px); line-height:1.35;
+    }
+    .item span:first-child{color:var(--gold); font-size:18px; margin-top:.18em;}
+    .three{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:54px;}
+    .tile{background:rgba(255,255,255,.45); border:1px solid var(--line); border-radius:24px; padding:26px; min-height:230px;}
+    .tile small{color:var(--gold); text-transform:uppercase; letter-spacing:.18em; font-weight:700; font-size:11px;}
+    .tile h3{margin-top:22px; margin-bottom:18px; font-size:30px;}
+    .tile p{font-size:16px; margin:0;}
+    .pills{display:flex; gap:18px; flex-wrap:wrap; margin-top:42px;}
+    .pill{border:1px solid color-mix(in srgb, var(--gold) 45%, transparent); border-radius:999px; padding:14px 22px; color:var(--deep); background:color-mix(in srgb, var(--gold) 8%, transparent); font-size:18px;}
+    .formula{display:inline-flex; align-items:center; justify-content:center; margin-top:30px; padding:18px 28px; border-radius:24px; border:1px solid color-mix(in srgb, var(--gold) 35%, transparent); background:rgba(255,255,255,.44); font-family:Georgia,serif; font-size:clamp(28px,4vw,52px); color:var(--ink);}
+    .nav{position:fixed; left:50%; bottom:22px; transform:translateX(-50%); display:flex; align-items:center; gap:12px; z-index:10;}
+    button{appearance:none; border:1px solid rgba(23,21,18,.14); background:rgba(255,253,249,.75); color:var(--ink); border-radius:999px; padding:12px 18px; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,.06); backdrop-filter:blur(10px);}
+    button:hover{border-color:color-mix(in srgb, var(--gold) 55%, transparent)}
+    .count{font-size:13px; color:var(--muted); min-width:70px; text-align:center;}
+    .progress{position:fixed; left:0; bottom:0; height:3px; background:var(--gold); width:0%; z-index:12; transition:width .35s ease;}
+    .hint{position:fixed; right:28px; top:24px; color:rgba(23,21,18,.42); font-size:13px; z-index:9;}
+
+    /* Palettes pastel luxe par domaine */
+    body.domain-matiere{
+      --gold:#b78b7a;
+      background:
+        radial-gradient(circle at top left, rgba(183,139,122,.22), transparent 34rem),
+        linear-gradient(135deg, #fff9f6 0%, #f6ece7 50%, #eadcd4 100%);
+    }
+    body.domain-mouvement{
+      --gold:#8da9b0;
+      background:
+        radial-gradient(circle at top left, rgba(141,169,176,.24), transparent 34rem),
+        linear-gradient(135deg, #f8fcfc 0%, #eaf3f4 50%, #dfecef 100%);
+    }
+    body.domain-energie{
+      --gold:#c0a568;
+      background:
+        radial-gradient(circle at top left, rgba(192,165,104,.22), transparent 34rem),
+        linear-gradient(135deg, #fffdf6 0%, #f5eedb 50%, #ebe0c5 100%);
+    }
+    body.domain-signaux{
+      --gold:#9b94bd;
+      background:
+        radial-gradient(circle at top left, rgba(155,148,189,.24), transparent 34rem),
+        linear-gradient(135deg, #fbf9ff 0%, #efedf7 50%, #e4e0f0 100%);
+    }
+    body.domain-brevet{
+      --gold:#b4965a;
+      background:
+        radial-gradient(circle at top left, rgba(180,150,90,.20), transparent 34rem),
+        linear-gradient(135deg, #fbf9f4 0%, #f7f4ef 48%, #eee7dc 100%);
+    }
+    .slide.domain-matiere .card:before{border-color:rgba(183,139,122,.24)}
+    .slide.domain-mouvement .card:before{border-color:rgba(141,169,176,.28)}
+    .slide.domain-energie .card:before{border-color:rgba(192,165,104,.28)}
+    .slide.domain-signaux .card:before{border-color:rgba(155,148,189,.28)}
+    .slide.domain-brevet .card:before{border-color:rgba(180,150,90,.24)}
+    .tile.domain-matiere{background:linear-gradient(145deg, rgba(255,247,242,.84), rgba(255,255,255,.42)); border-color:rgba(183,139,122,.30)}
+    .tile.domain-mouvement{background:linear-gradient(145deg, rgba(243,251,252,.84), rgba(255,255,255,.42)); border-color:rgba(141,169,176,.32)}
+    .tile.domain-energie{background:linear-gradient(145deg, rgba(255,250,238,.84), rgba(255,255,255,.42)); border-color:rgba(192,165,104,.32)}
+    .tile.domain-signaux{background:linear-gradient(145deg, rgba(248,246,255,.84), rgba(255,255,255,.42)); border-color:rgba(155,148,189,.32)}
+    .tile.domain-matiere small,.tile.domain-matiere h3{color:#a97868}
+    .tile.domain-mouvement small,.tile.domain-mouvement h3{color:#7198a0}
+    .tile.domain-energie small,.tile.domain-energie h3{color:#a88d4d}
+    .tile.domain-signaux small,.tile.domain-signaux h3{color:#8178aa}
+    .domain-label{
+      display:inline-flex; align-items:center; gap:10px;
+      margin-bottom:26px; padding:10px 15px;
+      border:1px solid rgba(0,0,0,.08); border-radius:999px;
+      background:rgba(255,255,255,.38); color:var(--muted);
+      font-size:12px; text-transform:uppercase; letter-spacing:.16em; font-weight:700;
+    }
+    .domain-label:before{content:""; width:8px; height:8px; border-radius:999px; background:var(--gold); box-shadow:0 0 0 5px color-mix(in srgb, var(--gold) 18%, transparent)}
+
+    @media(max-width:950px){.three{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:850px){
+      body{overflow:auto}.deck{height:auto}.slide{position:relative; opacity:1; pointer-events:auto; transform:none; min-height:100vh}.slide:not(.active){display:none}.hero-grid,.chapter{grid-template-columns:1fr}.three{grid-template-columns:1fr}.card{min-height:auto}.meta-box{border-left:0; padding-left:0}.hint{display:none}
+    }
+    @media print{body{overflow:visible;background:white}.slide{position:relative; opacity:1; transform:none; page-break-after:always}.nav,.progress,.hint{display:none}.card{box-shadow:none; border:1px solid #ddd}}
+  </style>
+</head>
+<body>
+  <div class="hint">← → pour naviguer</div>
+  <main class="deck" aria-live="polite">
+    <section class="slide active domain-brevet">
+      <div class="card hero-grid">
+        <div>
+          <div class="eyebrow">Collège · Classe de 3e</div>
+          <h1>Physique<br>Chimie</h1>
+          <p>Une présentation claire, élégante et synthétique du programme de troisième.</p>
+        </div>
+        <div class="meta-box">
+          <div class="meta-line"><span>Niveau</span><strong>3e</strong></div>
+          <div class="meta-line"><span>Format</span><strong>Programme officiel</strong></div>
+          <div class="meta-line"><span>Objectif</span><strong>Préparation Brevet</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-brevet">
+      <div class="card">
+        <div class="eyebrow">Vue d'ensemble</div>
+        <h2>Observer. Mesurer.<br>Modéliser et comprendre.</h2>
+        <div class="three">
+          <div class="tile domain-matiere"><small>01</small><h3>Matière</h3><p>Atomes, ions, molécules, réactions chimiques et solutions aqueuses.</p></div>
+          <div class="tile domain-mouvement"><small>02</small><h3>Mouvement</h3><p>Décrire les trajectoires, les vitesses, les forces et les interactions.</p></div>
+          <div class="tile domain-energie"><small>03</small><h3>Énergie</h3><p>Comprendre les conversions, l'électricité, la puissance et les circuits.</p></div>
+          <div class="tile domain-signaux"><small>04</small><h3>Signaux</h3><p>Étudier la lumière, le son et la transmission de l'information.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-matiere">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 1 · Matière</div><div class="eyebrow">Organisation et transformations</div><div class="number">01</div></div>
+        <div>
+          <h2>Constitution de la matière</h2>
+          <p>Comprendre les constituants du monde matériel, de l'atome à l'Univers.</p>
+          <div class="list">
+            <div class="item"><span>—</span><div>Structure de l'atome.</div></div>
+            <div class="item"><span>—</span><div>Ions et molécules.</div></div>
+            <div class="item"><span>—</span><div>Classification périodique simplifiée.</div></div>
+            <div class="item"><span>—</span><div>Composition de l'Univers.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-matiere">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 1 · Matière</div><div class="eyebrow">Transformations chimiques</div><div class="number">02</div></div>
+        <div>
+          <h2>Réactions et solutions</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Réactions chimiques et conservation de la masse.</div></div>
+            <div class="item"><span>—</span><div>Équations de réaction et synthèses chimiques.</div></div>
+            <div class="item"><span>—</span><div>pH, solutions acides et basiques.</div></div>
+            <div class="item"><span>—</span><div>Identification d'ions et réactions acide-métal.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-mouvement">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 2 · Mouvement</div><div class="eyebrow">Mouvements et interactions</div><div class="number">03</div></div>
+        <div>
+          <h2>Décrire un mouvement</h2>
+          <p>Identifier une trajectoire, analyser une vitesse et qualifier l'évolution du mouvement.</p>
+          <div class="list">
+            <div class="item"><span>—</span><div>Vitesse moyenne.</div></div>
+            <div class="item"><span>—</span><div>Trajectoires.</div></div>
+            <div class="item"><span>—</span><div>Mouvements uniformes et variés.</div></div>
+          </div>
+          <div class="formula">v = d / t</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-mouvement">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 2 · Mouvement</div><div class="eyebrow">Forces et interactions</div><div class="number">04</div></div>
+        <div>
+          <h2>Comprendre les actions mécaniques</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Représentation d'une force.</div></div>
+            <div class="item"><span>—</span><div>Poids et masse.</div></div>
+            <div class="item"><span>—</span><div>Interaction gravitationnelle.</div></div>
+            <div class="item"><span>—</span><div>Actions mécaniques sur les objets.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-energie">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 3 · Énergie</div><div class="eyebrow">Énergie et conversions</div><div class="number">05</div></div>
+        <div>
+          <h2>Énergie, électricité et circuits</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Différentes formes d'énergie, conservation et chaînes énergétiques.</div></div>
+            <div class="item"><span>—</span><div>Tension électrique, intensité du courant et puissance électrique.</div></div>
+            <div class="item"><span>—</span><div>Énergie électrique consommée.</div></div>
+            <div class="item"><span>—</span><div>Conducteurs, isolants, résistance et sécurité électrique.</div></div>
+          </div>
+          <div class="formula">U = R I</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-signaux">
+      <div class="card chapter">
+        <div><div class="domain-label">Domaine 4 · Signaux</div><div class="eyebrow">Observer et communiquer</div><div class="number">06</div></div>
+        <div>
+          <h2>Lumière, son et information</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Propagation de la lumière, sources primaires et objets diffusants.</div></div>
+            <div class="item"><span>—</span><div>Vision et perception.</div></div>
+            <div class="item"><span>—</span><div>Production et propagation du son, fréquence et hauteur.</div></div>
+            <div class="item"><span>—</span><div>Transmission de l'information et technologies modernes.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-brevet">
+      <div class="card chapter">
+        <div><div class="eyebrow">Compétences</div><div class="number">07</div></div>
+        <div>
+          <h2>Travailler comme un scientifique</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Pratiquer une démarche scientifique.</div></div>
+            <div class="item"><span>—</span><div>Réaliser des expériences et exploiter des mesures.</div></div>
+            <div class="item"><span>—</span><div>Modéliser des phénomènes.</div></div>
+            <div class="item"><span>—</span><div>Utiliser les outils numériques et communiquer un raisonnement scientifique.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-brevet">
+      <div class="card">
+        <div class="eyebrow">Repères Brevet</div>
+        <h2>Les incontournables<br>à maîtriser.</h2>
+        <div class="pills">
+          <span class="pill">Atome</span><span class="pill">Ions & pH</span><span class="pill">Réactions chimiques</span><span class="pill">Vitesse</span><span class="pill">Forces</span><span class="pill">Gravitation</span><span class="pill">Énergie électrique</span><span class="pill">Loi d'Ohm</span><span class="pill">Signaux</span>
+        </div>
+        <p style="margin-top:46px">Atomes, transformations, mouvement, énergie, circuits, lumière et son : les bases à consolider pour le DNB.</p>
+      </div>
+    </section>
+  </main>
+  <nav class="nav" aria-label="Navigation des diapositives"><button id="prev" type="button">Précédent</button><div class="count" id="count">1 / 10</div><button id="next" type="button">Suivant</button></nav>
+  <div class="progress" id="progress"></div>
+  <script>
+    const slides=[...document.querySelectorAll('.slide')];
+    const count=document.getElementById('count');
+    const progress=document.getElementById('progress');
+    let i=0;
+    function show(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+      document.body.className = [...slides[i].classList].filter(c=>c.startsWith('domain-')).join(' ');
+      count.textContent=`${i+1} / ${slides.length}`;
+      progress.style.width=`${((i+1)/slides.length)*100}%`;
+    }
+    document.getElementById('next').onclick=()=>show(i+1);
+    document.getElementById('prev').onclick=()=>show(i-1);
+    window.addEventListener('keydown',e=>{ if(e.key==='ArrowRight' || e.key===' ') show(i+1); if(e.key==='ArrowLeft') show(i-1); });
+    show(0);
+  </script>
+</body>
+</html>

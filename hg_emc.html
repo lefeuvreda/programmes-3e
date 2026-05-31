@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Programme 3e — Histoire · Géographie · EMC</title>
+  <style>
+    :root{
+      --bg:#f7f4ef;
+      --paper:#fffdf9;
+      --ink:#171512;
+      --muted:#746d63;
+      --line:rgba(23,21,18,.12);
+      --gold:#b4965a;
+      --deep:#27231d;
+      --shadow:0 30px 80px rgba(35,29,19,.12);
+      --radius:30px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(180,150,90,.18), transparent 34rem),
+        linear-gradient(135deg, #fbf9f4 0%, var(--bg) 48%, #eee7dc 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow:hidden;
+    }
+    .deck{height:100vh; width:100vw; position:relative;}
+    .slide{
+      position:absolute; inset:0;
+      opacity:0; pointer-events:none;
+      transform:translateY(16px) scale(.985);
+      transition:opacity .55s ease, transform .55s ease;
+      padding:clamp(24px,4vw,68px);
+      display:grid; place-items:center;
+    }
+    .slide.active{opacity:1; pointer-events:auto; transform:translateY(0) scale(1)}
+    .card{
+      width:min(1180px,100%);
+      min-height:min(760px, calc(100vh - 110px));
+      background:rgba(255,253,249,.78);
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(22px);
+      padding:clamp(30px,5vw,72px);
+      position:relative;
+      overflow:hidden;
+    }
+    .card:before{
+      content:""; position:absolute; inset:22px;
+      border:1px solid rgba(180,150,90,.18);
+      border-radius:calc(var(--radius) - 10px);
+      pointer-events:none;
+    }
+    .eyebrow{
+      color:var(--gold); text-transform:uppercase; letter-spacing:.24em;
+      font-size:12px; font-weight:700; margin-bottom:30px;
+    }
+    h1,h2,h3{margin:0; font-family: Georgia, "Times New Roman", serif; font-weight:400; letter-spacing:-.035em;}
+    h1{font-size:clamp(58px,8vw,118px); line-height:.9; max-width:900px;}
+    h2{font-size:clamp(46px,6vw,86px); line-height:.95; max-width:900px;}
+    h3{font-size:clamp(28px,3vw,42px); line-height:1.05;}
+    p{font-size:clamp(18px,2vw,25px); color:var(--muted); line-height:1.55; max-width:760px;}
+    .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:54px; align-items:end; height:100%;}
+    .meta-box{border-left:1px solid var(--line); padding-left:34px; align-self:end;}
+    .meta-line{display:flex; justify-content:space-between; gap:30px; padding:18px 0; border-bottom:1px solid var(--line); color:var(--muted); font-size:15px;}
+    .meta-line strong{color:var(--ink); font-weight:600;}
+    .chapter{display:grid; grid-template-columns:.8fr 1.2fr; gap:58px; align-items:start;}
+    .number{font-family:Georgia,serif; font-size:clamp(92px,12vw,170px); line-height:.75; color:rgba(180,150,90,.22)}
+    .list{display:grid; gap:16px; margin-top:34px;}
+    .item{
+      display:flex; align-items:flex-start; gap:18px;
+      padding:18px 0; border-bottom:1px solid var(--line);
+      font-size:clamp(18px,2vw,26px); line-height:1.35;
+    }
+    .item span:first-child{color:var(--gold); font-size:18px; margin-top:.18em;}
+    .three{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:54px;}
+    .tile{background:rgba(255,255,255,.45); border:1px solid var(--line); border-radius:24px; padding:28px; min-height:230px;}
+    .tile small{color:var(--gold); text-transform:uppercase; letter-spacing:.18em; font-weight:700; font-size:11px;}
+    .tile h3{margin-top:22px; margin-bottom:18px; font-size:32px;}
+    .tile p{font-size:17px; margin:0;}
+    .dates{display:flex; gap:18px; flex-wrap:wrap; margin-top:42px;}
+    .pill{border:1px solid rgba(180,150,90,.45); border-radius:999px; padding:14px 22px; color:var(--deep); background:rgba(180,150,90,.08); font-size:18px;}
+    .nav{position:fixed; left:50%; bottom:22px; transform:translateX(-50%); display:flex; align-items:center; gap:12px; z-index:10;}
+    button{appearance:none; border:1px solid rgba(23,21,18,.14); background:rgba(255,253,249,.75); color:var(--ink); border-radius:999px; padding:12px 18px; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,.06); backdrop-filter:blur(10px);}
+    button:hover{border-color:rgba(180,150,90,.55)}
+    .count{font-size:13px; color:var(--muted); min-width:70px; text-align:center;}
+    .progress{position:fixed; left:0; bottom:0; height:3px; background:var(--gold); width:0%; z-index:12; transition:width .35s ease;}
+    .hint{position:fixed; right:28px; top:24px; color:rgba(23,21,18,.42); font-size:13px; z-index:9;}
+    body.domain-histoire{--gold:#b88f74;background:radial-gradient(circle at top left, rgba(184,143,116,.22), transparent 34rem),linear-gradient(135deg,#fff9f5 0%,#f7eee8 50%,#efe2d8 100%);}
+    body.domain-geographie{--gold:#8da9b0;background:radial-gradient(circle at top left, rgba(141,169,176,.24), transparent 34rem),linear-gradient(135deg,#f8fcfc 0%,#eaf3f4 50%,#dfecef 100%);}
+    body.domain-emc{--gold:#9aa88d;background:radial-gradient(circle at top left, rgba(154,168,141,.24), transparent 34rem),linear-gradient(135deg,#fbfbf6 0%,#eef2e7 50%,#e3eadb 100%);}
+    body.domain-brevet{--gold:#b4965a;background:radial-gradient(circle at top left, rgba(180,150,90,.20), transparent 34rem),linear-gradient(135deg,#fbf9f4 0%,#f7f4ef 48%,#eee7dc 100%);}
+    .domain-label{display:inline-flex;align-items:center;gap:10px;margin-bottom:26px;padding:10px 15px;border:1px solid rgba(0,0,0,.08);border-radius:999px;background:rgba(255,255,255,.38);font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:700;}
+    @media(max-width:850px){
+      body{overflow:auto}.deck{height:auto}.slide{position:relative; opacity:1; pointer-events:auto; transform:none; min-height:100vh}.slide:not(.active){display:none}.hero-grid,.chapter{grid-template-columns:1fr}.three{grid-template-columns:1fr}.card{min-height:auto}.meta-box{border-left:0; padding-left:0}.hint{display:none}
+    }
+    @media print{body{overflow:visible;background:white}.slide{position:relative; opacity:1; transform:none; page-break-after:always}.nav,.progress,.hint{display:none}.card{box-shadow:none; border:1px solid #ddd}}
+  </style>
+</head>
+<body>
+  <div class="hint">← → pour naviguer</div>
+  <main class="deck" aria-live="polite">
+    <section class="slide active domain-brevet">
+      <div class="card hero-grid">
+        <div>
+          <div class="eyebrow">Collège · Classe de 3e</div>
+          <h1>Histoire<br>Géographie<br>EMC</h1>
+          <p>Une présentation claire, élégante et synthétique du programme de troisième.</p>
+        </div>
+        <div class="meta-box">
+          <div class="meta-line"><span>Niveau</span><strong>3e</strong></div>
+          <div class="meta-line"><span>Format</span><strong>Programme officiel</strong></div>
+          <div class="meta-line"><span>Objectif</span><strong>Préparation Brevet</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-brevet">
+      <div class="card">
+        <div class="eyebrow">Vue d'ensemble</div>
+        <h2>Trois disciplines.<br>Une même ambition.</h2>
+        <div class="three">
+          <div class="tile"><small>01</small><h3>Histoire</h3><p>Comprendre les grands bouleversements du XXe siècle et la République contemporaine.</p></div>
+          <div class="tile"><small>02</small><h3>Géographie</h3><p>Lire les dynamiques des territoires français, européens et mondialisés.</p></div>
+          <div class="tile"><small>03</small><h3>EMC</h3><p>Former des citoyens éclairés, responsables et engagés.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-histoire">
+      <div class="card chapter">
+        <div><div class="domain-label">Histoire</div><div class="eyebrow">Histoire</div><div class="number">01</div></div>
+        <div>
+          <h2>L'Europe face aux guerres totales</h2>
+          <p>1914-1945 : un demi-siècle de violences de masse, de régimes totalitaires et de refondations.</p>
+          <div class="list">
+            <div class="item"><span>—</span><div>Première Guerre mondiale : civils et militaires.</div></div>
+            <div class="item"><span>—</span><div>Régimes totalitaires : Allemagne nazie et URSS stalinienne.</div></div>
+            <div class="item"><span>—</span><div>Seconde Guerre mondiale : guerre d'anéantissement et génocides.</div></div>
+            <div class="item"><span>—</span><div>La France : défaite, Vichy, Résistance.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-histoire">
+      <div class="card chapter">
+        <div><div class="domain-label">Histoire</div><div class="eyebrow">Histoire</div><div class="number">02</div></div>
+        <div>
+          <h2>Le monde depuis 1945</h2>
+          <p>Un monde recomposé par la Guerre froide, les indépendances, l'Europe et la mondialisation.</p>
+          <div class="list">
+            <div class="item"><span>—</span><div>La Guerre froide.</div></div>
+            <div class="item"><span>—</span><div>Les décolonisations.</div></div>
+            <div class="item"><span>—</span><div>La construction européenne.</div></div>
+            <div class="item"><span>—</span><div>Les transformations depuis 1989.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-histoire">
+      <div class="card chapter">
+        <div><div class="domain-label">Histoire</div><div class="eyebrow">Histoire</div><div class="number">03</div></div>
+        <div>
+          <h2>Françaises et Français dans une République repensée</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>La Libération et la refondation républicaine.</div></div>
+            <div class="item"><span>—</span><div>La Ve République.</div></div>
+            <div class="item"><span>—</span><div>Évolutions politiques, sociales et culturelles depuis les années 1960.</div></div>
+            <div class="item"><span>—</span><div>Droits et libertés des citoyens.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-geographie">
+      <div class="card chapter">
+        <div><div class="domain-label">Géographie</div><div class="eyebrow">Géographie</div><div class="number">04</div></div>
+        <div>
+          <h2>Dynamiques territoriales de la France contemporaine</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Les espaces productifs français.</div></div>
+            <div class="item"><span>—</span><div>Les espaces de faible densité.</div></div>
+            <div class="item"><span>—</span><div>Les métropoles et leur influence.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-geographie">
+      <div class="card chapter">
+        <div><div class="domain-label">Géographie</div><div class="eyebrow">Géographie</div><div class="number">05</div></div>
+        <div>
+          <h2>Aménager le territoire</h2>
+          <p>Comprendre les choix, les acteurs et les enjeux d'un territoire plus équilibré.</p>
+          <div class="list">
+            <div class="item"><span>—</span><div>Réduire les inégalités territoriales.</div></div>
+            <div class="item"><span>—</span><div>Les acteurs de l'aménagement.</div></div>
+            <div class="item"><span>—</span><div>Territoires ultramarins et développement durable.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-geographie">
+      <div class="card chapter">
+        <div><div class="domain-label">Géographie</div><div class="eyebrow">Géographie</div><div class="number">06</div></div>
+        <div>
+          <h2>La France et l'Union européenne</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>La France dans l'Union européenne.</div></div>
+            <div class="item"><span>—</span><div>L'Union européenne dans la mondialisation.</div></div>
+            <div class="item"><span>—</span><div>La place de la France et de l'Europe dans le monde.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-emc">
+      <div class="card chapter">
+        <div><div class="domain-label">EMC</div><div class="eyebrow">EMC</div><div class="number">07</div></div>
+        <div>
+          <h2>Citoyenneté, droits et démocratie</h2>
+          <div class="list">
+            <div class="item"><span>—</span><div>Valeurs et principes de la République.</div></div>
+            <div class="item"><span>—</span><div>Droits, libertés et responsabilités.</div></div>
+            <div class="item"><span>—</span><div>Démocratie représentative, médias et opinion publique.</div></div>
+            <div class="item"><span>—</span><div>Engagement citoyen, défense nationale et Europe.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide domain-brevet">
+      <div class="card">
+        <div class="eyebrow">Repères Brevet</div>
+        <h2>Les incontournables<br>à maîtriser.</h2>
+        <div class="dates">
+          <span class="pill">Deux guerres mondiales</span>
+          <span class="pill">1945</span>
+          <span class="pill">1958</span>
+          <span class="pill">1989</span>
+          <span class="pill">Ve République</span>
+          <span class="pill">Union européenne</span>
+        </div>
+        <p style="margin-top:46px">Dates, personnages, repères géographiques, institutions françaises et européennes : les bases à consolider pour le DNB.</p>
+      </div>
+    </section>
+  </main>
+  <nav class="nav" aria-label="Navigation des diapositives">
+    <button id="prev" type="button">Précédent</button>
+    <div class="count" id="count">1 / 10</div>
+    <button id="next" type="button">Suivant</button>
+  </nav>
+  <div class="progress" id="progress"></div>
+  <script>
+    const slides=[...document.querySelectorAll('.slide')];
+    const count=document.getElementById('count');
+    const progress=document.getElementById('progress');
+    let i=0;
+    function show(n){
+      i=(n+slides.length)%slides.length;
+      slides.forEach((s,k)=>s.classList.toggle('active',k===i)); document.body.className=[...slides[i].classList].filter(c=>c.startsWith('domain-')).join(' ');
+      count.textContent=`${i+1} / ${slides.length}`;
+      progress.style.width=`${((i+1)/slides.length)*100}%`;
+    }
+    document.getElementById('next').onclick=()=>show(i+1);
+    document.getElementById('prev').onclick=()=>show(i-1);
+    window.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight' || e.key===' ') show(i+1);
+      if(e.key==='ArrowLeft') show(i-1);
+    });
+    show(0);
+  </script>
+</body>
+</html>
