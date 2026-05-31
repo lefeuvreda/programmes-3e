@@ -20,9 +20,23 @@
     body.domain-brevet{--gold:#b4965a;background:radial-gradient(circle at top left,rgba(180,150,90,.20),transparent 34rem),linear-gradient(135deg,#fbf9f4 0%,#f7f4ef 48%,#eee7dc 100%)}
     .slide .card:before{border-color:color-mix(in srgb,var(--gold) 24%,transparent)}.tile.domain-terre{background:linear-gradient(145deg,rgba(246,250,241,.84),rgba(255,255,255,.42));border-color:rgba(154,168,141,.32)}.tile.domain-vivant{background:linear-gradient(145deg,rgba(243,251,252,.84),rgba(255,255,255,.42));border-color:rgba(141,169,176,.32)}.tile.domain-sante{background:linear-gradient(145deg,rgba(255,247,242,.84),rgba(255,255,255,.42));border-color:rgba(183,139,122,.30)}.tile.domain-terre small,.tile.domain-terre h3{color:#7f9272}.tile.domain-vivant small,.tile.domain-vivant h3{color:#7198a0}.tile.domain-sante small,.tile.domain-sante h3{color:#a97868}.domain-label{display:inline-flex;align-items:center;gap:10px;margin-bottom:26px;padding:10px 15px;border:1px solid rgba(0,0,0,.08);border-radius:999px;background:rgba(255,255,255,.38);color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:700}.domain-label:before{content:"";width:8px;height:8px;border-radius:999px;background:var(--gold);box-shadow:0 0 0 5px color-mix(in srgb,var(--gold) 18%,transparent)}
     @media(max-width:850px){body{overflow:auto}.deck{height:auto}.slide{position:relative;opacity:1;pointer-events:auto;transform:none;min-height:100vh}.slide:not(.active){display:none}.hero-grid,.chapter{grid-template-columns:1fr}.three{grid-template-columns:1fr}.card{min-height:auto}.meta-box{border-left:0;padding-left:0}.hint{display:none}}@media print{body{overflow:visible;background:white}.slide{position:relative;opacity:1;transform:none;page-break-after:always}.nav,.progress,.hint{display:none}.card{box-shadow:none;border:1px solid #ddd}}
-  </style>
+  
+    .home-link{
+      position:fixed;left:24px;top:24px;z-index:20;
+      text-decoration:none;color:var(--ink);
+      background:rgba(255,253,249,.82);
+      border:1px solid rgba(23,21,18,.12);
+      border-radius:999px;padding:12px 18px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 30px rgba(0,0,0,.06);
+      font-size:14px;font-weight:600;
+    }
+    .home-link:hover{transform:translateY(-1px)}
+    
+</style>
 </head>
 <body>
+<a class="home-link" href="index.html">← Menu principal</a>
   <div class="hint">← → pour naviguer</div>
   <main class="deck" aria-live="polite">
     <section class="slide active domain-brevet"><div class="card hero-grid"><div><div class="eyebrow">Collège · Classe de 3e</div><h1>SVT</h1><p>Une présentation claire, élégante et synthétique du programme de troisième.</p></div><div class="meta-box"><div class="meta-line"><span>Niveau</span><strong>3e</strong></div><div class="meta-line"><span>Format</span><strong>Programme officiel</strong></div><div class="meta-line"><span>Objectif</span><strong>Préparation Brevet</strong></div></div></div></section>

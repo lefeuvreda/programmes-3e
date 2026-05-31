@@ -140,9 +140,23 @@
       body{overflow:auto}.deck{height:auto}.slide{position:relative; opacity:1; pointer-events:auto; transform:none; min-height:100vh}.slide:not(.active){display:none}.hero-grid,.chapter{grid-template-columns:1fr}.three{grid-template-columns:1fr}.card{min-height:auto}.meta-box{border-left:0; padding-left:0}.hint{display:none}
     }
     @media print{body{overflow:visible;background:white}.slide{position:relative; opacity:1; transform:none; page-break-after:always}.nav,.progress,.hint{display:none}.card{box-shadow:none; border:1px solid #ddd}}
-  </style>
+  
+    .home-link{
+      position:fixed;left:24px;top:24px;z-index:20;
+      text-decoration:none;color:var(--ink);
+      background:rgba(255,253,249,.82);
+      border:1px solid rgba(23,21,18,.12);
+      border-radius:999px;padding:12px 18px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 10px 30px rgba(0,0,0,.06);
+      font-size:14px;font-weight:600;
+    }
+    .home-link:hover{transform:translateY(-1px)}
+    
+</style>
 </head>
 <body>
+<a class="home-link" href="index.html">← Menu principal</a>
   <div class="hint">← → pour naviguer</div>
   <main class="deck" aria-live="polite">
     <section class="slide active domain-brevet"><div class="card hero-grid"><div><div class="eyebrow">Collège · Classe de 3e</div><h1>Français</h1><p>Une présentation claire, élégante et synthétique du programme de troisième.</p></div><div class="meta-box"><div class="meta-line"><span>Niveau</span><strong>3e</strong></div><div class="meta-line"><span>Format</span><strong>Programme officiel</strong></div><div class="meta-line"><span>Objectif</span><strong>Préparation Brevet</strong></div></div></div></section>
